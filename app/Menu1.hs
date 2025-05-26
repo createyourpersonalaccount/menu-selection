@@ -101,7 +101,7 @@ navigateFromNode printBanner currentPath (Node label children) = do
         printItem (n, s) = putStrLn $ (show n) <> ". " <> s
         numberedLabels = zip [1..] (rootLabel <$> children)
 
--- | Ignore any exception raised by an action.
+-- | Ignore any IO exception raised by an action.
 --
 -- Does not re-raise the exception.
 ignoreException :: IO a -> IO ()
