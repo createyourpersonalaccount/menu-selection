@@ -78,8 +78,8 @@ menuTree =
 -- | Beginning from a node, navigate the user until a leaf is met.
 --
 -- Returns the sequence of choices the user made.
-navigateFromNode :: IO () -> Seq String -> Tree String -> IO (Either (Seq String) String)
-navigateFromNode _ currentPath (Node label []) = pure (Left $ currentPath :|> label)
+navigateFromNode :: IO () -> Seq String -> Tree String -> IO (Either String (Seq String))
+navigateFromNode _ currentPath (Node label []) = pure (Right $ currentPath :|> label)
 navigateFromNode printBanner currentPath (Node label children) = do
   putStrLn ""
   printBanner
@@ -90,10 +90,10 @@ navigateFromNode printBanner currentPath (Node label children) = do
   hFlush stdout
   choice <- getLine
   case (readMaybe choice :: Maybe Int) of
-    Nothing -> do pure (Right $ "Invalid choice `" <> choice <> "'.")
+    Nothing -> do pure (Left $ "Invalid choice `" <> choice <> "'.")
     Just number -> if 0 < number && number <= length children
                    then navigateFromNode printBanner newPath (children !! (number - 1))
-                   else pure (Right $ "The choice `" <> choice <> "' is out of range.")
+                   else pure (Left $ "The choice `" <> choice <> "' is out of range.")
   where newPath = currentPath :|> label
         position Empty = ""
         position (x :<| Empty) = x
@@ -114,6 +114,6 @@ main = do
   let loop currentChoice = do
         result <- navigateFromNode (printBanner currentChoice) Empty menuTree
         case result of
-          Left choice -> loop choice
-          Right error -> putStrLn error >> loop currentChoice
+          Right choice -> loop choice
+          Left error -> putStrLn error >> loop currentChoice
   ignoreException $ loop Empty
