@@ -15,6 +15,19 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 -}
 
+{- |
+   Module      : Main
+   Copyright   : Copyright (C) 2025 Nikolaos Chatzikonstantinou
+   License     : GPL-3.0-or-later
+
+   Maintainer  : Nikolaos Chatzikonstantinou <nchatz314@gmail.com>
+   Stability   : alpha
+   Portability : portable
+
+A program that gives you a menu similar to a phone tree. It remembers
+your final choice but then loops back to the beginning. It only quits
+on EOF.
+-}
 module Main where
 
 import Data.Tree (Tree(Node, rootLabel))
@@ -24,6 +37,16 @@ import Control.Exception (catch)
 import Control.Monad (void)
 import System.IO(hFlush, stdout)
 
+-- | The menu tree.
+--
+-- Choose your favorite animal!
+--
+-- Note that each label is unique; associated data could therefore be
+-- attached to the nodes by using a 'Data.Map.Map'.
+--
+-- We opted to use a 'Data.Tree.Tree' instead of a 'Data.Graph.Graph'
+-- because the latter is more complicated, although the latter can
+-- also hold metadata without the use of a map.
 menuTree :: Tree String
 menuTree =
   n "Animal" [
@@ -52,6 +75,9 @@ menuTree =
   ]
   where n = Node
 
+-- | Beginning from a node, navigate the user until a leaf is met.
+--
+-- Returns the sequence of choices the user made.
 navigateFromNode :: IO () -> Seq String -> Tree String -> IO (Either (Seq String) String)
 navigateFromNode _ currentPath (Node label []) = pure (Left $ currentPath :|> label)
 navigateFromNode printBanner currentPath (Node label children) = do
@@ -74,11 +100,11 @@ navigateFromNode printBanner currentPath (Node label children) = do
         printItem (n, s) = putStrLn $ (show n) <> ". " <> s
         numberedLabels = zip [1..] (rootLabel <$> children)
 
-catcher :: IOError -> ()
-catcher _ = ()
-
+-- | Ignore any exception raised by an action.
+--
+-- Does not re-raise the exception.
 ignoreException :: IO a -> IO ()
-ignoreException f = (void f) `catch` (pure . catcher)
+ignoreException f = (void f) `catch` (pure . const () :: IOError -> IO ())
 
 main :: IO ()
 main = do
