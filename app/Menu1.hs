@@ -93,7 +93,7 @@ navigateFromNode printBanner currentPath (Node label children) = do
     Nothing -> do pure (Right $ "Invalid choice `" <> choice <> "'.")
     Just number -> if 0 < number && number <= length children
                    then navigateFromNode printBanner newPath (children !! (number - 1))
-                   else do pure (Right $ "The choice `" <> choice <> "' is out of range.")
+                   else pure (Right $ "The choice `" <> choice <> "' is out of range.")
   where newPath = currentPath :|> label
         position Empty = ""
         position (x :<| Empty) = x
