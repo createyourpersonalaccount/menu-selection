@@ -81,6 +81,7 @@ menuTree =
 navigateFromNode :: IO () -> Seq String -> Tree String -> IO (Either (Seq String) String)
 navigateFromNode _ currentPath (Node label []) = pure (Left $ currentPath :|> label)
 navigateFromNode printBanner currentPath (Node label children) = do
+  putStrLn ""
   printBanner
   putStrLn $ "You are at: " <> (position newPath) <> "."
   putStrLn "Choose one of:"
